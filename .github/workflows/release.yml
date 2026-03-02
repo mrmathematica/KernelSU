@@ -6,30 +6,23 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-manager:
-    uses: ./.github/workflows/build-manager.yml
+  build-arcvm-kernel:
+    uses: ./.github/workflows/build-kernel-arcvm.yml
     secrets: inherit
   release:
     needs:
-      - build-manager
+      - build-arcvm-kernel
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v8
-
-      - name: Rename ksud
+      - name: Zip ChromeOS ARCVM kernel
         run: |
-          mkdir -p ksud
-          for dir in ./ksud-*; do
-              if [ -d "$dir" ]; then
-                 echo "----- Rename $dir -----"
-                 ksud_platform_name=$(basename "$dir")
-                 find "$dir" -type f -name "ksud" -path "*/release/*" | while read -r ksud_file; do
-                   if [ -f "$ksud_file" ]; then
-                     mv "$ksud_file" "ksud/$ksud_platform_name"
-                   fi
-                 done
-              fi
+          for dir in kernel-ARCVM-*; do
+            if [ -d "$dir" ]; then
+              echo "------ Zip $dir ----------"
+              (cd $dir && zip -r9 "$dir".zip ./* -x .git .gitignore ./*.zip && mv *.zip ..)
+            fi
           done
 
       - name: Display structure of downloaded files
@@ -39,7 +32,4 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            manager/*.apk
-            android*-lkm/*_kernelsu.ko
-            ksud/ksud-*
-            ksuinit/**
+            kernel-ARCVM*.zip
