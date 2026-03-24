@@ -17,7 +17,11 @@ bool is_safe_mode();
 
 bool is_lkm_mode();
 
+bool is_late_load_mode();
+
 bool is_manager();
+
+bool is_pr_build();
 
 #define KSU_APP_PROFILE_VER 2
 #define KSU_MAX_PACKAGE_NAME 256
@@ -101,9 +105,16 @@ struct ksu_become_daemon_cmd {
     uint8_t token[65]; // Input: daemon token (null-terminated)
 };
 
+enum ksu_get_info_flag : uint32_t {
+    KSU_GET_INFO_FLAG_LKM = 1U << 0,
+    KSU_GET_INFO_FLAG_MANAGER = 1U << 1,
+    KSU_GET_INFO_FLAG_LATE_LOAD = 1U << 2,
+    KSU_GET_INFO_FLAG_PR_BUILD = 1U << 3,
+};
+
 struct ksu_get_info_cmd {
     uint32_t version; // Output: KERNEL_SU_VERSION
-    uint32_t flags;   // Output: flags (bit 0: MODULE mode)
+    uint32_t flags;   // Output: KSU_GET_INFO_FLAG_* bits
     uint32_t features; // Output: max feature ID supported (KSU_FEATURE_MAX)
 };
 

@@ -19,7 +19,9 @@ object Natives {
     // 11071: Fix the issue of failing to set a custom SELinux type.
     // 12143: breaking: new supercall impl
     // 32310: new get_allow_list ioctl
-    const val MINIMAL_SUPPORTED_KERNEL = 32310
+    // 32336: new set_sepolicy ioctl
+    // 32377: add set_init_pgrp ioctl
+    const val MINIMAL_SUPPORTED_KERNEL = 32377
 
     const val KERNEL_SU_DOMAIN = "u:r:su:s0"
 
@@ -39,7 +41,13 @@ object Natives {
     val isLkmMode: Boolean
         external get
 
+    val isLateLoadMode: Boolean
+        external get
+
     val isManager: Boolean
+        external get
+
+    val isPrBuild: Boolean
         external get
 
     external fun uidShouldUmount(uid: Int): Boolean
