@@ -12,10 +12,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - arch: x86_64
-            kernel_image_name: bzImage
-            build_config: build.config.gki.x86_64
-            defconfig: x86_64_arcvm_defconfig
           - arch: arm64
             kernel_image_name: Image
             build_config: build.config.gki.aarch64
@@ -121,7 +117,7 @@ jobs:
           echo "file_path=${PWD}/arch/${ARCH}/boot/${KERNEL_IMAGE_NAME}" >> $GITHUB_ENV
 
       - name: Upload kernel-ARCVM-${{ matrix.arch }}-${{ env.version }}
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: kernel-ARCVM-${{ matrix.arch }}-${{ env.version }}
           path: "${{ env.file_path }}"
