@@ -8,7 +8,6 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -78,8 +77,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.platform.UriHandler
@@ -99,9 +100,10 @@ import me.weishu.kernelsu.ui.component.dialog.rememberConfirmDialog
 import me.weishu.kernelsu.ui.component.material.SearchAppBar
 import me.weishu.kernelsu.ui.component.material.SegmentedColumn
 import me.weishu.kernelsu.ui.component.material.SegmentedListItem
+import me.weishu.kernelsu.ui.component.material.TonalCard
 import me.weishu.kernelsu.ui.component.statustag.StatusTag
-import me.weishu.kernelsu.ui.screen.home.TonalCard
 import me.weishu.kernelsu.ui.util.download
+import me.weishu.kernelsu.ui.util.rememberContentReady
 import java.text.Collator
 
 @SuppressLint("LocalContextGetResourceValueCall")
@@ -111,6 +113,7 @@ fun ModuleRepoScreenMaterial(
     state: ModuleRepoUiState,
     actions: ModuleRepoActions,
 ) {
+    val haptic = LocalHapticFeedback.current
     val listState = rememberLazyListState()
     val searchListState = rememberLazyListState()
 
@@ -148,6 +151,7 @@ fun ModuleRepoScreenMaterial(
                                 text = { Text(stringResource(R.string.module_repos_sort_name)) },
                                 trailingIcon = { Checkbox(state.sortByName, null) },
                                 onClick = {
+                                    haptic.performHapticFeedback(HapticFeedbackType.VirtualKey)
                                     actions.onToggleSortByName()
                                 }
                             )
@@ -181,7 +185,7 @@ fun ModuleRepoScreenMaterial(
     ) { innerPadding ->
         val isLoading = state.modules.isEmpty()
         val hadDataOnEntry = remember { state.modules.isNotEmpty() }
-        val contentReady = hadDataOnEntry || me.weishu.kernelsu.ui.util.rememberContentReady()
+        val contentReady = hadDataOnEntry || rememberContentReady()
 
         if (!contentReady || isLoading) {
             Box(
@@ -247,11 +251,13 @@ private fun RepoModuleList(
             val latestReleaseTime = remember(module.latestReleaseTime) { module.latestReleaseTime }
             val moduleAuthor = stringResource(id = R.string.module_author)
 
-            TonalCard(modifier = Modifier.fillMaxWidth()) {
+            TonalCard(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = { onModuleClick(module) }
+            ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { onModuleClick(module) }
                         .padding(22.dp, 18.dp, 22.dp, 12.dp)
                 ) {
                     if (module.moduleName.isNotEmpty()) {
@@ -475,7 +481,7 @@ private fun ReadmePage(
         ),
     ) {
         item {
-            val contentReady = me.weishu.kernelsu.ui.util.rememberContentReady()
+            val contentReady = rememberContentReady()
             var isLoading by remember { mutableStateOf(true) }
             if (isLoading) {
                 Box(
