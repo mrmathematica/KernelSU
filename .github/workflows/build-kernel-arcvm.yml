@@ -12,10 +12,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - arch: x86_64
-            kernel_image_name: bzImage
-            build_config: build.config.gki.x86_64
-            defconfig: x86_64_arcvm_defconfig
           - arch: arm64
             kernel_image_name: Image
             build_config: build.config.gki.aarch64
